@@ -1,0 +1,212 @@
+﻿@using System.Data
+@model DataSet
+
+@{
+    DataTable dt = new DataTable();
+    int i = 0;
+    if (Model.Tables.Count > 0)
+    {
+        dt = Model.Tables[0];
+    }
+}
+
+@{
+    ViewBag.Title = "Clients";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Clients </h3>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a data-toggle="modal" id="CreateNew" href="#">Create New</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+                alert("@ViewBag.Message");
+        </script>
+
+    }
+
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th> Sr. No. </th>
+                                    <th> Client Name </th>
+                                    <th> Client Email Id </th>
+                                    <th> Created On </th>
+                                    <th> Action </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DataRow dr in dt.Rows)
+                                {
+                                    i++;
+                                    <tr>
+                                        <td> @i </td>
+                                        <td> @dr["ClientName"] </td>
+                                        <td> @dr["ClientEmailId"] </td>
+                                        <td> @Convert.ToDateTime(dr["CreatedOn"]).ToString("dd/MM/yyyy hh:mm tt") </td>
+                                        <td> <button type="submit" cntid="@dr["Id"]" class="btn btn-secondary btn-xs btnEdit"> Edit </button> 
+                                         <button type="submit" cntid="@dr["Id"]" class="btn btn-secondary btn-xs btnDelete"> Delete </button> </td>
+                                    </tr>                                    
+                                }                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="showmodal" tabindex="-1" role="dialog" aria-labelledby="showmodal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color:#fff">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLongTitle"> Client Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="">
+                    <div class="form-group">
+                        <label for="client_name">Client Name</label>
+                        <input type="text" class="form-control" id="client_name">
+                    </div>
+                    <div class="form-group">
+                        <label for="emailid">Client Email Id</label>
+                        <input type="text" class="form-control" id="emailid">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">               
+                <button type="button" id="BtnSubmit" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#CreateNew").click(function () {
+            $("#BtnSubmit").text("Save");
+            $("#emailid").attr("disabled", false);
+            $("#BtnSubmit").removeAttr("clntid");
+            $("#client_name").val('');
+            $("#emailid").val('');
+            $('#showmodal').modal('show');
+        });
+
+        $("#BtnSubmit").click(function () {
+
+            var attr = $(this).attr("clntid");
+            if (typeof attr == 'undefined') {
+
+                // create new client
+                if ($("#client_name").val() == '') {
+                    alert("Please fill client name!");
+                    $("#client_name").focus();
+                    return false;
+                }
+                else if ($("#emailid").val() == '') {
+                    alert("Please fill client email id!");
+                    $("#emailid").focus();
+                    return false;
+                }
+
+                var req = {
+                    ClinetName: $("#client_name").val(),
+                    ClientEmail: $("#emailid").val(),
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/Admin/AddClient",
+                    data: JSON.stringify(req),
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        alert(data.Message);
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error occured!!")
+                    }
+                });
+            }
+            else {
+                // update client
+                if ($("#client_name").val() == '') {
+                    alert("Please fill client name!");
+                    $("#client_name").focus();
+                    return false;
+                }
+
+                var req = {
+                    ClinetName: $("#client_name").val(),
+                    ClientId: $(this).attr('clntid')
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/Admin/UpdateClient",
+                    data: JSON.stringify(req),
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        alert(data.Message);
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error occured!!")
+                    }
+                });
+            }          
+        });
+        $(".btnDelete").click(function () {            
+
+            var result = confirm("Are you sure?");
+            if (result) {
+                var req = {
+                    ClientId: $(this).attr('cntid')
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Admin/DeleteClient",
+                    data: JSON.stringify(req),
+                    dataType: "json",
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        alert(data.Message);
+                        window.location.reload();
+                    },
+                    error: function () {
+                        alert("Error occured!!")
+                    }
+                });
+            }
+        });
+        $(".btnEdit").click(function () {
+            $("#BtnSubmit").text("Update");
+            $("#emailid").attr("disabled", true);
+            $('#BtnSubmit').attr('clntid', $(this).attr('cntid'));
+            $("#client_name").val($(this).closest("tr").find("td").eq(1).html());
+            $("#emailid").val($(this).closest("tr").find("td").eq(2).html());           
+            $('#showmodal').modal('show');
+        })
+    });
+</script>
+

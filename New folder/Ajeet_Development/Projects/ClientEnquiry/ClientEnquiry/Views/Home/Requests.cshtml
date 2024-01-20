@@ -1,0 +1,138 @@
+﻿
+@using System.Data
+@model DataSet
+
+@{ 
+    DataTable dt = new DataTable();
+    if(Model.Tables.Count > 0)
+    {
+        dt = Model.Tables[0];
+    }
+}
+
+@{
+    ViewBag.Title = "Requests";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> All Requests </h3>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+                alert("@ViewBag.Message");
+        </script>
+
+    }
+
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th> Req. Id </th>
+                                    <th> Req. Type </th>
+                                    <th> Priority </th>
+                                    <th> Department </th>
+                                    <th style="display:none;"> Detail </th>
+                                    <th> Req. Date </th>
+                                    <th> Closing Date </th>
+                                    <th> Closing Status </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach(DataRow dr in dt.Rows)
+                                {
+                                    string closingData = dr["ClosingDate"].ToString() == "" ? "Not Completed" : Convert.ToDateTime(dr["ClosingDate"]).ToString("dd/MM/yyyy hh:mm tt");
+                                    <tr>
+                                        <td> @dr["Id"] </td>
+                                        <td> @dr["SupportType"] </td>
+                                        <td> @dr["Priority"] </td>
+                                        <td> @dr["Department"]</td>
+                                        <td style="display:none;"> @dr["Details"] </td>
+                                        <td> @Convert.ToDateTime(dr["CreatedOn"]).ToString("dd/MM/yyyy hh:mm tt") </td>
+                                        <td> @closingData </td>
+                                        <td> @dr["Status"] </td>
+                                        <td> <button type="submit" id="btnview" data-toggle="modal" class="btn btn-secondary btn-xs viewmodal"> Detail </button> </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="showmodal" tabindex="-1" role="dialog" aria-labelledby="showmodal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color:#fff">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLongTitle">Request</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="">
+                    <div class="form-group" style="margin-bottom:2px">
+                        <label><strong> Req. Id : </strong> <span id="reqid"></span> </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom:2px">
+                        <label><strong> Type : </strong> <span id="type"></span> </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom:2px">
+                        <label><strong> Department : </strong> <span id="dep"></span> </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom:2px">
+                        <label><strong> Priority : </strong> <span id="priority"></span> </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom:2px">
+                        <strong> Details : </strong> <p><span id="detail"></span> </p>
+                    </div>
+                    <div class="form-group" style="margin-bottom:2px">
+                        <label><strong> Req. Date : </strong> <span id="reqdate"></span></label>
+                    </div>
+                    <div class="form-group" style="margin-bottom:2px">
+                        <label><strong> Closing Date : </strong> <span id="closedate"></span></label>
+                    </div>
+
+                    <div class="form-group">
+                        <label><strong> Status : </strong> <span id="status"></span></label>
+                    </div>
+
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".viewmodal").click(function () {
+            $("#reqid").text($(this).closest("tr").find("td").eq(0).html());
+            $("#type").text($(this).closest("tr").find("td").eq(1).html());
+            $("#dep").text($(this).closest("tr").find("td").eq(2).html());
+            $("#priority").text($(this).closest("tr").find("td").eq(3).html());
+            $("#detail").text($(this).closest("tr").find("td").eq(4).html());
+            $("#reqdate").text($(this).closest("tr").find("td").eq(5).html());
+            $("#closedate").text($(this).closest("tr").find("td").eq(6).html());
+            $("#status").text($(this).closest("tr").find("td").eq(7).html());
+            $('#showmodal').modal('show');
+           
+        })
+    });
+</script>
+
+

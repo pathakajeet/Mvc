@@ -1,0 +1,311 @@
+﻿@using System.Data
+@model DataSet
+
+@{
+    DataTable dt = new DataTable();
+    if (Model.Tables.Count > 0)
+    {
+        dt = Model.Tables[0];
+    }
+}
+
+@{
+    ViewBag.Title = "Employee Requests";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> All Requests </h3>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <script type="text/javascript">
+                alert("@ViewBag.Message");
+        </script>
+    }
+
+    <div class="row">
+        <div class="col-lg-12 grid-margin stretch-card">
+            <div class="card">                
+                <div class="card-body">
+
+                    <select class="form-control" style="width:140px; height:32px; display:inline; margin-bottom:10px" id="selectstatus">
+                        <option value="All">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Process">Process</option>
+                        <option value="Complete">Complete</option>
+                    </select>
+                    <select class="form-control" style="width: 140px; height: 32px; margin-bottom: 10px; display: inline;" id="SelectDepartment">
+                        <option value="All">All Department</option>
+                        <option value="Account">Account</option>
+                        <option value="Sales">Sales</option>
+                    </select>
+                    <select class="form-control" style="width: 140px; height: 32px; margin-bottom: 10px; display: inline;" id="emplByDep">
+                        <option value="All"> All Employees </option>
+                    </select>
+                    <button type="button" id="btnSearch" class="btn btn-secondary btn-xs"> Search </button>
+
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th> Req. Id </th>
+                                    <th> Req. Type </th>
+                                    <th> Priority </th>
+                                    <th> Department </th>
+                                    <th style="display:none;"> Detail </th>
+                                    <th> Req. Date </th>
+                                    <th> Closing Date </th>
+                                    <th> Status </th>
+                                    <th style="display:none;"> Remark </th>
+                                    <th> Assigned To </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                @foreach (DataRow dr in dt.Rows)
+                                {
+                                    string closingData = dr["ClosingDate"].ToString() == "" ? "Not Completed" : Convert.ToDateTime(dr["ClosingDate"]).ToString("dd/MM/yyyy hh:mm tt");
+                                    <tr>
+                                        <td> @dr["Id"] </td>
+                                        <td> @dr["SupportType"] </td>
+                                        <td> @dr["Priority"] </td>
+                                        <td> @dr["Department"]</td>
+                                        <td style="display:none;"> @dr["Details"] </td>
+                                        <td> @Convert.ToDateTime(dr["CreatedOn"]).ToString("dd/MM/yyyy hh:mm tt") </td>
+                                        <td> @closingData </td>
+                                        <td> @dr["Status"] </td>
+                                        <td style="display:none;"> @dr["Remark"] </td>
+                                        <td> @dr["EmpName"] </td>
+                                        <td> <button type="submit" data-toggle="modal" rid="@dr["Id"]" class="btn btn-secondary btn-xs btnview"> Detail </button> </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal -->
+
+<div class="modal fade" id="showmodal" tabindex="-1" role="dialog" aria-labelledby="showmodal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="background-color:#fff">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ModalLongTitle">Request Assignment</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="margin-bottom:2px">
+                    <label><strong> Req. Id : </strong> <span id="reqid"></span> </label>
+                </div>
+                <div class="form-group" style="margin-bottom:2px">
+                    <label><strong> Type : </strong> <span id="type"></span> </label>
+                </div>
+                <div class="form-group" style="margin-bottom:2px">
+                    <label><strong> Priority : </strong> <span id="priority"></span> </label>
+                </div>
+                <div class="form-group" style="margin-bottom:2px">
+                    <strong> Details : </strong> <p><span id="detail"></span> </p>
+                </div>
+                <div class="form-group" style="margin-bottom:2px">
+                    <label><strong> Req. Date : </strong> <span id="reqdate"></span></label>
+                </div>
+                <div class="form-group" style="margin-bottom:2px">
+                    <label><strong> Closing Date : </strong> <span id="closedate"></span></label>
+                </div>
+                <div class="form-group" style="margin-bottom:2px">
+                    <label><strong> Status : </strong> <span id="status"></span></label>
+                </div>
+                <div class="form-group" style="margin-bottom:2px">
+                    <label><strong> Remark : </strong> <span id="remark"></span></label>
+                </div>               
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group" style="margin-bottom:2px">
+                            <label for="department"><strong>Department</strong></label>
+                            <select class="form-control" id="department">
+                                <option value="Account"> Account </option>
+                                <option value="Sales"> Sales </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group" style="margin-bottom:2px">
+                            <label for="assignedto"><strong>Assigned To</strong></label>
+                            <select class="form-control" id="assignedto">                                
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnAssign" class="btn btn-primary">Assign</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        const urlParams = new URLSearchParams(window.location.search);        
+        $("#selectstatus").val(urlParams.get('s'));
+        $("#SelectDepartment").val(urlParams.get('d'));       
+        GetEmployeeList(urlParams.get('d'));        
+        $("#emplByDep").val(urlParams.get('e'));
+
+        $(".btnview").click(function () {
+
+            $("#reqid").text($(this).closest("tr").find("td").eq(0).html());
+            $("#type").text($(this).closest("tr").find("td").eq(1).html());
+            $("#priority").text($(this).closest("tr").find("td").eq(2).html());
+            $("#department").val($(this).closest("tr").find("td").eq(3).html().trim());
+            $("#detail").text($(this).closest("tr").find("td").eq(4).html());
+            $("#reqdate").text($(this).closest("tr").find("td").eq(5).html());
+            $("#closedate").text($(this).closest("tr").find("td").eq(6).html());
+            $("#status").text($(this).closest("tr").find("td").eq(7).html());
+            $("#remark").text($(this).closest("tr").find("td").eq(8).html());
+            $('#btnAssign').attr('reqid', $(this).attr('rid'));
+            if ($(this).closest("tr").find("td").eq(7).html().trim() == 'Complete') {
+                $('#department').attr('disabled', true);
+                $('#assignedto').attr('disabled', true);
+                $('#btnAssign').hide();
+            }
+            else {
+                $('#department').attr('disabled', false);
+                $('#assignedto').attr('disabled', false);
+                $('#btnAssign').show();
+            }
+            
+            // get client list on the basis of Department type
+
+            var req = {
+                department: $(this).closest("tr").find("td").eq(3).html().trim()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Admin/GetEmpListByDepartment",
+                data: JSON.stringify(req),
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+
+                    $("#assignedto").empty();
+                    $.each(data.EmployeeList, function () {
+                        $("#assignedto").append($("<option/>").val(this.EmpId).text(this.EmpName));
+                    });
+
+                },
+                error: function () {
+                    alert("Error occured!!")
+                }
+            });
+
+            $('#showmodal').modal('show');
+
+        });
+
+        $("#btnAssign").click(function () {
+
+            var req = {
+                ReqId: $(this).attr('reqid'),
+                department: $("#department").val().trim(),
+                assignedTo: $("#assignedto").val().trim()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Admin/AssignRequest",
+                data: JSON.stringify(req),
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    alert(data.Message);
+                    window.location.reload();
+                },
+                error: function () {
+                    alert("Error occured!!")
+                }
+            });
+        });
+
+        // button search
+
+        $(document).on("click", "#btnSearch", function () {
+            var getUrl = window.location.href.split('?')[0];
+            location.href = getUrl + "?s=" + $("#selectstatus").val() + "&d=" + $("#SelectDepartment").val() + "&e=" + $("#emplByDep").val();
+        });
+
+        // get employees from department name 
+        $("#department").on("change", function () {
+            var req = {
+                department: $(this).val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Admin/GetEmpListByDepartment",
+                data: JSON.stringify(req),
+                dataType: "json",
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#assignedto").empty();
+                    $.each(data.EmployeeList, function () {
+                        $("#assignedto").append($("<option/>").val(this.EmpId).text(this.EmpName));
+                    });
+                },
+                error: function () {
+                    alert("Error occured!!")
+                }
+            });
+        });
+
+        // get employees from department name 
+        $("#SelectDepartment").on("change", function () {            
+            GetEmployeeList($(this).val())
+        });
+
+         function GetEmployeeList(depVal) {
+            var req = {
+                department: depVal
+            };
+            
+            if (depVal != 'All') {
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Admin/GetEmpListByDepartment",
+                    data: JSON.stringify(req),
+                    dataType: "json",
+                    async: false,
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (data) {
+                        $("#emplByDep").empty();
+                        $("#emplByDep").append($("<option/>").val('All').text('All Employees'));
+                        $.each(data.EmployeeList, function () {
+                            $("#emplByDep").append($("<option/>").val(this.EmpId).text(this.EmpName));
+                        });
+                    },
+                    error: function () {
+                        alert("Error occured!!")
+                    }
+                });
+            }
+            else {
+                $("#emplByDep").empty();
+                $("#emplByDep").append($("<option/>").val('All').text('All Employees'));
+            }
+        };
+
+    });
+</script>

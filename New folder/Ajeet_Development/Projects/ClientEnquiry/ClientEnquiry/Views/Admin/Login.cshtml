@@ -1,0 +1,57 @@
+﻿@model ClientEnquiry.Models.LoginModel
+
+@{
+    Layout = null;
+}
+
+<!doctype html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <title>IISERVZ-Admin</title>
+    <link href='https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css' rel='stylesheet'>
+    <link href='https://use.fontawesome.com/releases/v5.7.2/css/all.css' rel='stylesheet'>
+    <link href="~/Content/login.css" rel="stylesheet" />
+</head>
+
+<body class='snippet-body'>
+    <div class="wrapper bg-white">
+        <div class="h4 text-center">IISERVZ-Admin</div>
+        <div class="h4 text-muted text-center pt-2">Enter your login details</div>
+        @if (ViewBag.Message != null)
+        {
+            <script type="text/javascript">
+                alert("@ViewBag.Message");
+            </script>
+
+        }
+
+        @using (Html.BeginForm("Login", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div class="pt-3">
+                <div class="form-group py-2">
+                    <div class="input-field">
+                        <span class="far fa-user p-2"></span>
+                        @Html.TextBoxFor(m => m.Username, new { placeholder = "Username or Email Address", MaxLength = "100" })
+                    </div>
+                </div>
+                <div class="form-group py-1 pb-2">
+                    <div class="input-field">
+                        <span class="fas fa-lock p-2"></span>
+                        @Html.TextBoxFor(m => m.Password, new { placeholder = "Enter your Password", MaxLength = "100" })
+                    </div>
+                </div>
+                <div class="d-flex align-items-start">
+
+                    <div class="ml-auto"> <a href="#" id="forgot">Forgot Password?</a> </div>
+                </div> <input type="submit" class="btn btn-block text-center my-3" value="Submit" />
+
+            </div>
+        }
+
+    </div>
+
+</body>
+</html>

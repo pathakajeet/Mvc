@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+
+<div class="content-wrapper">
+    <div class="page-header">
+        <h3 class="page-title"> Request Form </h3>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="forms-sample">
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="support_type">Type of Support</label>
+                                <select class="form-control" id="support_type">
+                                    <option value="">Select</option>
+                                    <option value="Case-Track">Case-Track</option>
+                                    <option value="I-Verify Software">I-Verify Software</option>
+                                    <option value="Client Portal">Client Portal</option>
+                                    <option value="Global Database">Global Database</option>
+                                    <option value="Digital Verification">Digital Verification</option>
+                                    <option value="Database">Database</option>
+                                    <option value="E-Verify">E-Verify</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="priority">Priority</label>
+                                <select class="form-control" id="priority">
+                                    <option value="">Select</option>
+                                    <option value="Normal">Normal</option>
+                                    <option value="Medium">Medium</option>
+                                    <option value="High">High</option>
+                                    <option value="Emergency">Emergency</option>
+                                </select>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="department">Department</label>
+                                <select class="form-control" id="department">
+                                    <option value="">Select</option>
+                                    <option value="Account"> Account </option>
+                                    <option value="Sales"> Sales </option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-4">
+                                <label for="personname">Contact Person (Optional)</label>
+                                <input type="text" class="form-control" maxlength="100" id="personname">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="mobile">Mobile Number (Optional)</label>
+                                <input type="text" class="form-control" maxlength="15" id="mobile">
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="email">Emial Id (Optional)</label>
+                                <input type="text" class="form-control" maxlength="100" id="email">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-lg-12">
+                                <label for="detail">Write Something (Max 500 characters)</label>
+                                <textarea class="form-control" id="detail" rows="4"></textarea>
+                            </div>
+                        </div>
+
+                        <!--<button class="btn btn-light">Refresh</button>-->
+                        <button type="submit" id="BtnSubmit" class="btn btn-primary mr-2">Submit</button>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#BtnSubmit").click(function () {
+
+            if ($("#support_type").val() == '') {
+                alert("Select Support Type");                
+                return false;
+            }
+            else if ($("#priority").val() == '') {
+                alert("Select Priority");
+                return false;
+            }
+            else if ($("#department").val() == '') {
+                alert("Select Department");
+                return false;
+            }
+
+            var req = {
+                supportType: $("#support_type").val(),
+                priority: $("#priority").val(),
+                department: $("#department").val(),
+                personName: $("#personname").val(),
+                personMobile: $("#mobile").val(),
+                personEmail: $("#email").val(),
+                details: $("#detail").val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/SubmitRequest",
+                data: JSON.stringify(req),
+                dataType: "json",  
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    $("#support_type").val('');
+                    $("#priority").val('');
+                    $("#department").val('');
+                    $("#personname").val('');
+                    $("#mobile").val('');
+                    $("#email").val('');
+                    $("#detail").val('');
+                    alert(data.Message);
+                },
+                error: function () {
+                    alert("Error occured!!")
+                }
+            });
+
+        });
+    });
+</script>
